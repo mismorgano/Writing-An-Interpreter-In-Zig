@@ -1,3 +1,6 @@
+// const monkey = @import("monkey");
+// const token = monkey.token;
+// const lexer = monkey.lexer;
 const token = @import("../token/token.zig");
 const lexer = @import("lexer.zig");
 const std = @import("std");
@@ -20,13 +23,15 @@ test "next token" {
         .{ .expected_type = token.EOF, .expected_literal = "" },
     };
 
-    const l = lexer.Lexer.init(input);
+    var l = lexer.Lexer.init(input);
 
     for (tests) |tt| {
         const tok = l.nextToken();
 
-        try std.testing.expectEqual(tt.expected_type, tok.Type);
+        std.debug.print("{s}\n", .{tt.expected_type});
+        // try std.testing.expectEqual(tt.expected_type, tok.Type);
+        try std.testing.expectEqualStrings(tt.expected_type, tok.Type);
 
-        try std.testing.expectEqual(tt.expected_literal, tok.Literal);
+        try std.testing.expectEqualStrings(tt.expected_literal, tok.Literal);
     }
 }

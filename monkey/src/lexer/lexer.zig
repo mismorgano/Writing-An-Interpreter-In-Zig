@@ -6,7 +6,7 @@ pub const Lexer = struct {
     readPosition: usize = 0, // current reading position in input (after current char)
     ch: u8 = 0, // current char under examination
 
-    pub fn init(input: []const u8) *Lexer {
+    pub fn init(input: []const u8) Lexer {
         var lexer = Lexer{ .input = input };
         lexer.readChar();
         return lexer;
@@ -24,15 +24,16 @@ pub const Lexer = struct {
 
     pub fn nextToken(self: *Lexer) token.Token {
         const tok: token.Token = switch (self.ch) {
-            '=' => .{ .Type = .ASSIGN, .Literal = self.ch },
-            ';' => .{ .Type = .SEMICOLON, .Literal = self.ch },
-            '(' => .{ .Type = .LPAREN, .Literal = self.ch },
-            ')' => .{ .Type = .RPAREN, .Literal = self.ch },
-            ',' => .{ .Type = .COMMA, .Literal = self.ch },
-            '+' => .{ .Type = .PLUS, .Literal = self.ch },
-            '{' => .{ .Type = .LBRACE, .Literal = self.ch },
-            '}' => .{ .Type = .RBRACE, .Literal = self.ch },
+            '=' => .{ .Type = token.ASSIGN, .Literal = "=" },
+            ';' => .{ .Type = token.SEMICOLON, .Literal = ";" },
+            '(' => .{ .Type = token.LPAREN, .Literal = "(" },
+            ')' => .{ .Type = token.RPAREN, .Literal = ")" },
+            ',' => .{ .Type = token.COMMA, .Literal = "," },
+            '+' => .{ .Type = token.PLUS, .Literal = "+" },
+            '{' => .{ .Type = token.LBRACE, .Literal = "{" },
+            '}' => .{ .Type = token.RBRACE, .Literal = "}" },
             0 => .{ .Type = token.EOF, .Literal = "" },
+            else => .{ .Type = token.ILLEGAL, .Literal = "" },
         };
 
         self.readChar();
@@ -41,6 +42,6 @@ pub const Lexer = struct {
 
     // utility function not used
     pub fn newToken(tokenType: token.TokenType, ch: u8) token.Token {
-        token.Token{ .Type = tokenType, .Literal = ch };
+        .{ .Type = tokenType, .Literal = @as([]const u8, ch) };
     }
 };
