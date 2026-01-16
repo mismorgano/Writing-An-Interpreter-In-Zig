@@ -25,7 +25,3 @@ test "fuzz example" {
     };
     try std.testing.fuzz(Context{}, Context.testOne, .{});
 }
-
-comptime {
-    _ = @import("lexer/lexer_test.zig");
-}

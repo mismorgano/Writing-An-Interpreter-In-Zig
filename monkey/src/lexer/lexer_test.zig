@@ -1,7 +1,7 @@
 // const monkey = @import("monkey");
 // const token = monkey.token;
 // const lexer = monkey.lexer;
-const token = @import("../token/token.zig");
+const token = @import("token");
 const lexer = @import("lexer.zig");
 const std = @import("std");
 const expect = @import("std").testing.expect;

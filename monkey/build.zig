@@ -41,6 +41,16 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
+    const token_mod = b.createModule(.{
+        .root_source_file = b.path("src/token/token.zig"),
+        .target = target,
+    });
+
+    // const lexer_mod = b.addModule("lexer", .{
+    //     .root_source_file = b.path("src/lexer/lexer.zig"),
+    //     .target = target,
+    // });
+
     // Here we define an executable. An executable needs to have a root module
     // which needs to expose a `main` function. While we could add a main function
     // to the module defined above, it's sometimes preferable to split business
@@ -125,6 +135,20 @@ pub fn build(b: *std.Build) void {
     // A run step that will run the test executable.
     const run_mod_tests = b.addRunArtifact(mod_tests);
 
+    // setup lexer test
+    const lexer_test = b.addTest(.{
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/lexer/lexer_test.zig"),
+            .target = target,
+            .imports = &.{
+                .{ .name = "token", .module = token_mod },
+            },
+        }),
+        // .test_runner = .{ .path = b.path("src/lexer/lexer_test.zig"), .mode = .simple },
+    });
+
+    const run_lexer_test = b.addRunArtifact(lexer_test);
+
     // Creates an executable that will run `test` blocks from the executable's
     // root module. Note that test executables only test one module at a time,
     // hence why we have to create two separate ones.
@@ -140,6 +164,7 @@ pub fn build(b: *std.Build) void {
     // make the two of them run in parallel.
     const test_step = b.step("test", "Run tests");
     test_step.dependOn(&run_mod_tests.step);
+    test_step.dependOn(&run_lexer_test.step);
     test_step.dependOn(&run_exe_tests.step);
 
     // Just like flags, top level steps are also listed in the `--help` menu.
