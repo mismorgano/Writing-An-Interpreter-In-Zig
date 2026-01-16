@@ -61,11 +61,11 @@ test "next token" {
     };
 
     var l = lexer.Lexer.init(input);
-
+    // std.debug.print("{s}", .{input});
     for (tests) |tt| {
         const tok = l.nextToken();
-
-        std.debug.print("{s}\n", .{tt.expected_type});
+        // std.debug.print("\n", .{});
+        // std.debug.print("expected: {s}    real: {s} ", .{ tt.expected_literal, tok.Literal });
         // try std.testing.expectEqual(tt.expected_type, tok.Type);
         try std.testing.expectEqualStrings(tt.expected_type, tok.Type);
 

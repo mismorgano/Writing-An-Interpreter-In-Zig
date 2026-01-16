@@ -21,8 +21,17 @@ pub const Lexer = struct {
         self.position = self.readPosition;
         self.readPosition += 1;
     }
+    pub fn readNumber(self: *Lexer) []const u8 {
+        const position = self.position;
+        while (isDigit(self.ch)) {
+            self.readChar();
+        }
+        return self.input[position..self.position];
+    }
 
     pub fn nextToken(self: *Lexer) token.Token {
+        self.skipWhitespace();
+
         const tok: token.Token = switch (self.ch) {
             '=' => .{ .Type = token.ASSIGN, .Literal = "=" },
             ';' => .{ .Type = token.SEMICOLON, .Literal = ";" },
@@ -33,11 +42,40 @@ pub const Lexer = struct {
             '{' => .{ .Type = token.LBRACE, .Literal = "{" },
             '}' => .{ .Type = token.RBRACE, .Literal = "}" },
             0 => .{ .Type = token.EOF, .Literal = "" },
-            else => .{ .Type = token.ILLEGAL, .Literal = "" },
+            else => {
+                if (isLetter(self.ch)) {
+                    const identifier = self.readIdentifier();
+                    const t = token.lookupIdent(identifier);
+                    return .{ .Type = t, .Literal = identifier };
+                } else if (isDigit(self.ch)) {
+                    const number = self.readNumber();
+                    return .{ .Type = token.INT, .Literal = number };
+                } else {
+                    return .{ .Type = token.ILLEGAL, .Literal = "" };
+                }
+            },
         };
 
         self.readChar();
         return tok;
+    }
+
+    pub fn readIdentifier(self: *Lexer) []const u8 {
+        const position = self.position;
+        while (isLetter(self.ch)) {
+            self.readChar();
+        }
+        return self.input[position..self.position];
+    }
+
+    pub fn skipWhitespace(self: *Lexer) void {
+        skip: switch (self.ch) {
+            ' ', '\t', '\n', '\r' => {
+                self.readChar();
+                continue :skip self.ch;
+            },
+            else => {},
+        }
     }
 
     // utility function not used
@@ -45,3 +83,11 @@ pub const Lexer = struct {
         .{ .Type = tokenType, .Literal = @as([]const u8, ch) };
     }
 };
+
+fn isDigit(ch: u8) bool {
+    return '0' <= ch and ch <= '9';
+}
+
+fn isLetter(ch: u8) bool {
+    return 'a' <= ch and ch <= 'z' or 'A' <= ch and ch <= 'Z' or ch == '_';
+}

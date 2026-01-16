@@ -1,3 +1,5 @@
+const std = @import("std");
+
 pub const TokenType = []const u8;
 
 pub const Token = struct {
@@ -30,3 +32,14 @@ pub const RBRACE = "}";
 // Keywords
 pub const FUNCTION = "FUNCTION";
 pub const LET = "LET";
+
+const keywords = std.StaticStringMap(TokenType).initComptime(
+    .{
+        .{ "fn", FUNCTION },
+        .{ "let", LET },
+    },
+);
+
+pub fn lookupIdent(ident: []const u8) TokenType {
+    return keywords.get(ident) orelse IDENT;
+}
