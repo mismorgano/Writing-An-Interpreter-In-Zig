@@ -16,6 +16,16 @@ test "next token" {
         \\}; 
         \\
         \\let result = add(five, ten);
+        \\!-/*5;
+        \\5 < 10 > 5;
+        \\
+        \\if (5 < 10) {
+        \\  return true;
+        \\} else {
+        \\  return false;
+        \\}
+        \\10 == 10;
+        \\10 != 9;
     ;
 
     const ExpectedToken = struct { expected_type: token.TokenType, expected_literal: []const u8 };
@@ -56,6 +66,43 @@ test "next token" {
         .{ .expected_type = token.COMMA, .expected_literal = "," },
         .{ .expected_type = token.IDENT, .expected_literal = "ten" },
         .{ .expected_type = token.RPAREN, .expected_literal = ")" },
+        .{ .expected_type = token.SEMICOLON, .expected_literal = ";" },
+        .{ .expected_type = token.BANG, .expected_literal = "!" },
+        .{ .expected_type = token.MINUS, .expected_literal = "-" },
+        .{ .expected_type = token.SLASH, .expected_literal = "/" },
+        .{ .expected_type = token.ASTERISK, .expected_literal = "*" },
+        .{ .expected_type = token.INT, .expected_literal = "5" },
+        .{ .expected_type = token.SEMICOLON, .expected_literal = ";" },
+        .{ .expected_type = token.INT, .expected_literal = "5" },
+        .{ .expected_type = token.LT, .expected_literal = "<" },
+        .{ .expected_type = token.INT, .expected_literal = "10" },
+        .{ .expected_type = token.GT, .expected_literal = ">" },
+        .{ .expected_type = token.INT, .expected_literal = "5" },
+        .{ .expected_type = token.SEMICOLON, .expected_literal = ";" },
+        .{ .expected_type = token.IF, .expected_literal = "if" },
+        .{ .expected_type = token.LPAREN, .expected_literal = "(" },
+        .{ .expected_type = token.INT, .expected_literal = "5" },
+        .{ .expected_type = token.LT, .expected_literal = "<" },
+        .{ .expected_type = token.INT, .expected_literal = "10" },
+        .{ .expected_type = token.RPAREN, .expected_literal = ")" },
+        .{ .expected_type = token.LBRACE, .expected_literal = "{" },
+        .{ .expected_type = token.RETURN, .expected_literal = "return" },
+        .{ .expected_type = token.TRUE, .expected_literal = "true" },
+        .{ .expected_type = token.SEMICOLON, .expected_literal = ";" },
+        .{ .expected_type = token.RBRACE, .expected_literal = "}" },
+        .{ .expected_type = token.ELSE, .expected_literal = "else" },
+        .{ .expected_type = token.LBRACE, .expected_literal = "{" },
+        .{ .expected_type = token.RETURN, .expected_literal = "return" },
+        .{ .expected_type = token.FALSE, .expected_literal = "false" },
+        .{ .expected_type = token.SEMICOLON, .expected_literal = ";" },
+        .{ .expected_type = token.RBRACE, .expected_literal = "}" },
+        .{ .expected_type = token.INT, .expected_literal = "10" },
+        .{ .expected_type = token.EQ, .expected_literal = "==" },
+        .{ .expected_type = token.INT, .expected_literal = "10" },
+        .{ .expected_type = token.SEMICOLON, .expected_literal = ";" },
+        .{ .expected_type = token.INT, .expected_literal = "10" },
+        .{ .expected_type = token.NOT_EQ, .expected_literal = "!=" },
+        .{ .expected_type = token.INT, .expected_literal = "9" },
         .{ .expected_type = token.SEMICOLON, .expected_literal = ";" },
         .{ .expected_type = token.EOF, .expected_literal = "" },
     };
