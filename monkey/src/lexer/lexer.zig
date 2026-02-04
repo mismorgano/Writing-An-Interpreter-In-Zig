@@ -21,6 +21,15 @@ pub const Lexer = struct {
         self.position = self.readPosition;
         self.readPosition += 1;
     }
+
+    pub fn peekChar(self: *Lexer) u8 {
+        if (self.readPosition >= self.input.len) {
+            return 0;
+        } else {
+            return self.input[self.readPosition];
+        }
+    }
+
     pub fn readNumber(self: *Lexer) []const u8 {
         const position = self.position;
         while (isDigit(self.ch)) {
@@ -32,13 +41,33 @@ pub const Lexer = struct {
     pub fn nextToken(self: *Lexer) token.Token {
         self.skipWhitespace();
 
-        const tok: token.Token = switch (self.ch) {
-            '=' => .{ .Type = token.ASSIGN, .Literal = "=" },
+        const tok: token.Token = sw: switch (self.ch) {
+            '=' => {
+                if (self.peekChar() == '=') {
+                    self.readChar();
+                    break :sw .{ .Type = token.EQ, .Literal = "==" };
+                } else {
+                    break :sw .{ .Type = token.ASSIGN, .Literal = "=" };
+                }
+            },
+            '+' => .{ .Type = token.PLUS, .Literal = "+" },
+            '-' => .{ .Type = token.MINUS, .Literal = "-" },
+            '!' => {
+                if (self.peekChar() == '=') {
+                    self.readChar();
+                    break :sw .{ .Type = token.NOT_EQ, .Literal = "!=" };
+                } else {
+                    break :sw .{ .Type = token.BANG, .Literal = "!" };
+                }
+            },
+            '*' => .{ .Type = token.ASTERISK, .Literal = "*" },
+            '/' => .{ .Type = token.SLASH, .Literal = "/" },
+            '<' => .{ .Type = token.LT, .Literal = "<" },
+            '>' => .{ .Type = token.GT, .Literal = ">" },
             ';' => .{ .Type = token.SEMICOLON, .Literal = ";" },
+            ',' => .{ .Type = token.COMMA, .Literal = "," },
             '(' => .{ .Type = token.LPAREN, .Literal = "(" },
             ')' => .{ .Type = token.RPAREN, .Literal = ")" },
-            ',' => .{ .Type = token.COMMA, .Literal = "," },
-            '+' => .{ .Type = token.PLUS, .Literal = "+" },
             '{' => .{ .Type = token.LBRACE, .Literal = "{" },
             '}' => .{ .Type = token.RBRACE, .Literal = "}" },
             0 => .{ .Type = token.EOF, .Literal = "" },
