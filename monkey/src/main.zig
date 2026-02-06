@@ -1,10 +1,29 @@
 const std = @import("std");
 const monkey = @import("monkey");
+const repl = @import("repl/repl.zig");
 
 pub fn main() !void {
     // Prints to stderr, ignoring potential errors.
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
     try monkey.bufferedPrint();
+
+    // allocator
+    var gpa: std.heap.DebugAllocator(.{}) = .init;
+    const allocator = gpa.allocator();
+
+    // stdin
+    var stdin_buffer: [1024]u8 = undefined;
+    var stdin_reader = std.fs.File.stdin().reader(&stdin_buffer);
+    const stdin = &stdin_reader.interface;
+
+    // stdout
+    var stdout_buffer: [1024]u8 = undefined;
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    const stdout = &stdout_writer.interface;
+
+    try stdout.print("try any commands \n", .{});
+    try stdout.flush();
+    try repl.Start(allocator, stdin, stdout);
 }
 
 test "simple test" {
