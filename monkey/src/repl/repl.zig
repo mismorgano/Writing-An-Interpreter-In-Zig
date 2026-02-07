@@ -33,8 +33,8 @@ pub fn start(allocator: std.mem.Allocator, in: *std.Io.Reader, out: *std.Io.Writ
                 },
             }
 
-            allocating_writer.clearRetainingCapacity();
-            in.toss(1);
+            allocating_writer.clearRetainingCapacity(); // "clean" the allocating_writer, to avoid printing past user inputs.
+            in.toss(1); // literally toss the last (1) character, because of the \n that where are not reading.
             try out.flush();
         } else |err| {
             try out.print("{any}\n", .{err});
