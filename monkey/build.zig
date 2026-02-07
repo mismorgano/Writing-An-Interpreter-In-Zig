@@ -46,6 +46,17 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
+    const lexer_mod = b.createModule(.{
+        .root_source_file = b.path("src/lexer/lexer.zig"),
+        .target = target,
+        .imports = &.{
+            .{
+                .name = "token",
+                .module = token_mod,
+            },
+        },
+    });
+
     // const lexer_mod = b.addModule("lexer", .{
     //     .root_source_file = b.path("src/lexer/lexer.zig"),
     //     .target = target,
@@ -89,6 +100,8 @@ pub fn build(b: *std.Build) void {
                 // can be extremely useful in case of collisions (which can happen
                 // importing modules from different packages).
                 .{ .name = "monkey", .module = mod },
+                .{ .name = "token", .module = token_mod },
+                .{ .name = "lexer", .module = lexer_mod },
             },
         }),
     });
