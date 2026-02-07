@@ -21,9 +21,9 @@ pub fn main() !void {
     var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
     const stdout = &stdout_writer.interface;
 
-    try stdout.print("try any commands \n", .{});
-    try stdout.flush();
-    try repl.Start(allocator, stdin, stdout);
+    try stdout.print("Try any commands \n", .{});
+    // try stdout.flush();
+    try repl.start(allocator, stdin, stdout);
 }
 
 test "simple test" {
