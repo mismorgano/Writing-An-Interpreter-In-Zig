@@ -45,32 +45,32 @@ pub const Lexer = struct {
             '=' => {
                 if (self.peekChar() == '=') {
                     self.readChar();
-                    break :sw .{ .Type = token.EQ, .Literal = "==" };
+                    break :sw .{ .Type = .EQ, .Literal = "==" };
                 } else {
-                    break :sw .{ .Type = token.ASSIGN, .Literal = "=" };
+                    break :sw .{ .Type = .ASSIGN, .Literal = "=" };
                 }
             },
-            '+' => .{ .Type = token.PLUS, .Literal = "+" },
-            '-' => .{ .Type = token.MINUS, .Literal = "-" },
+            '+' => .{ .Type = .PLUS, .Literal = "+" },
+            '-' => .{ .Type = .MINUS, .Literal = "-" },
             '!' => {
                 if (self.peekChar() == '=') {
                     self.readChar();
-                    break :sw .{ .Type = token.NOT_EQ, .Literal = "!=" };
+                    break :sw .{ .Type = .NOT_EQ, .Literal = "!=" };
                 } else {
-                    break :sw .{ .Type = token.BANG, .Literal = "!" };
+                    break :sw .{ .Type = .BANG, .Literal = "!" };
                 }
             },
-            '*' => .{ .Type = token.ASTERISK, .Literal = "*" },
-            '/' => .{ .Type = token.SLASH, .Literal = "/" },
-            '<' => .{ .Type = token.LT, .Literal = "<" },
-            '>' => .{ .Type = token.GT, .Literal = ">" },
-            ';' => .{ .Type = token.SEMICOLON, .Literal = ";" },
-            ',' => .{ .Type = token.COMMA, .Literal = "," },
-            '(' => .{ .Type = token.LPAREN, .Literal = "(" },
-            ')' => .{ .Type = token.RPAREN, .Literal = ")" },
-            '{' => .{ .Type = token.LBRACE, .Literal = "{" },
-            '}' => .{ .Type = token.RBRACE, .Literal = "}" },
-            0 => .{ .Type = token.EOF, .Literal = "" },
+            '*' => .{ .Type = .ASTERISK, .Literal = "*" },
+            '/' => .{ .Type = .SLASH, .Literal = "/" },
+            '<' => .{ .Type = .LT, .Literal = "<" },
+            '>' => .{ .Type = .GT, .Literal = ">" },
+            ';' => .{ .Type = .SEMICOLON, .Literal = ";" },
+            ',' => .{ .Type = .COMMA, .Literal = "," },
+            '(' => .{ .Type = .LPAREN, .Literal = "(" },
+            ')' => .{ .Type = .RPAREN, .Literal = ")" },
+            '{' => .{ .Type = .LBRACE, .Literal = "{" },
+            '}' => .{ .Type = .RBRACE, .Literal = "}" },
+            0 => .{ .Type = .EOF, .Literal = "" },
             else => {
                 if (isLetter(self.ch)) {
                     const identifier = self.readIdentifier();
@@ -78,9 +78,9 @@ pub const Lexer = struct {
                     return .{ .Type = t, .Literal = identifier };
                 } else if (isDigit(self.ch)) {
                     const number = self.readNumber();
-                    return .{ .Type = token.INT, .Literal = number };
+                    return .{ .Type = .INT, .Literal = number };
                 } else {
-                    return .{ .Type = token.ILLEGAL, .Literal = "" };
+                    return .{ .Type = .ILLEGAL, .Literal = "" };
                 }
             },
         };
