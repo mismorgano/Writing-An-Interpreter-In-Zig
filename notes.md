@@ -1,6 +1,6 @@
 # Some notes about programming languages
 
-Right now I just wanted to be able to implements an interpreter before digging in the theory
+Right now I just wanted to be able to implement an interpreter before digging in the theory
 I already now about finite automata deterministic and non deterministic, regular languages, 
 context-free languages, turing machines and little more. I heard they had to do with building programming
 languages but I have no idea. In any case just before making sense on how these concepts fit together I

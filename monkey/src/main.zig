@@ -21,9 +21,30 @@ pub fn main() !void {
     var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
     const stdout = &stdout_writer.interface;
 
-    try stdout.print("Try any commands \n", .{});
-    // try stdout.flush();
-    try repl.start(allocator, stdin, stdout);
+    // the cross-platform way to access args it's an iterator
+    var argsIterator = try std.process.argsWithAllocator(allocator);
+    defer argsIterator.deinit();
+
+    _ = argsIterator.skip();
+
+    // populate an arrayList from the args iterator
+    var args: std.ArrayList([]const u8) = .empty;
+    while (argsIterator.next()) |arg| {
+        try args.append(allocator, arg);
+    }
+
+    // how the cli should be used based on number of arguments
+    // more than one argument we specify its usage
+    if (args.items.len > 1) {
+        try stdout.print("Usage: monkey [script]", .{});
+    } else if (args.items.len == 1) {
+        //with one argument (a file) it runs the file
+    } else {
+        // with not arguments it's calling the repl
+        try stdout.print("Try any commands \n", .{});
+        // try stdout.flush();
+        try repl.start(allocator, stdin, stdout);
+    }
 }
 
 test "simple test" {
