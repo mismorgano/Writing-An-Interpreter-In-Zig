@@ -5,6 +5,7 @@ pub const Lexer = struct {
     position: usize = 0, // current position in input (points to current char)
     readPosition: usize = 0, // current reading position in input (after current char)
     ch: u8 = 0, // current char under examination
+    line: u64 = 1,
 
     pub fn init(input: []const u8) Lexer {
         var lexer = Lexer{ .input = input };
@@ -45,42 +46,42 @@ pub const Lexer = struct {
             '=' => {
                 if (self.peekChar() == '=') {
                     self.readChar();
-                    break :sw .{ .Type = .EQ, .Literal = "==" };
+                    break :sw self.newToken(.EQUAL, "==");
                 } else {
-                    break :sw .{ .Type = .ASSIGN, .Literal = "=" };
+                    break :sw self.newToken(.ASSIGN, "=");
                 }
             },
-            '+' => .{ .Type = .PLUS, .Literal = "+" },
-            '-' => .{ .Type = .MINUS, .Literal = "-" },
+            '+' => self.newToken(.PLUS, "+"),
+            '-' => self.newToken(.MINUS, "-"),
             '!' => {
                 if (self.peekChar() == '=') {
                     self.readChar();
-                    break :sw .{ .Type = .NOT_EQ, .Literal = "!=" };
+                    break :sw self.newToken(.NOT_EQUAL, "!=");
                 } else {
-                    break :sw .{ .Type = .BANG, .Literal = "!" };
+                    break :sw self.newToken(.BANG, "!");
                 }
             },
-            '*' => .{ .Type = .ASTERISK, .Literal = "*" },
-            '/' => .{ .Type = .SLASH, .Literal = "/" },
-            '<' => .{ .Type = .LT, .Literal = "<" },
-            '>' => .{ .Type = .GT, .Literal = ">" },
-            ';' => .{ .Type = .SEMICOLON, .Literal = ";" },
-            ',' => .{ .Type = .COMMA, .Literal = "," },
-            '(' => .{ .Type = .LPAREN, .Literal = "(" },
-            ')' => .{ .Type = .RPAREN, .Literal = ")" },
-            '{' => .{ .Type = .LBRACE, .Literal = "{" },
-            '}' => .{ .Type = .RBRACE, .Literal = "}" },
-            0 => .{ .Type = .EOF, .Literal = "" },
+            '*' => self.newToken(.ASTERISK, "*"),
+            '/' => self.newToken(.SLASH, "/"),
+            '<' => self.newToken(.LESS, "<"),
+            '>' => self.newToken(.GREATER, ">"),
+            ';' => self.newToken(.SEMICOLON, ";"),
+            ',' => self.newToken(.COMMA, ","),
+            '(' => self.newToken(.LEFT_PAREN, "("),
+            ')' => self.newToken(.RIGHT_PAREN, ")"),
+            '{' => self.newToken(.LEFT_PAREN, "{"),
+            '}' => self.newToken(.RIGHT_BRACE, "}"),
+            0 => self.newToken(.EOF, ""), // because it points to null-terminated byte arrays.
             else => {
                 if (isLetter(self.ch)) {
                     const identifier = self.readIdentifier();
                     const t = token.lookupIdent(identifier);
-                    return .{ .Type = t, .Literal = identifier };
+                    return self.newToken(t, identifier);
                 } else if (isDigit(self.ch)) {
                     const number = self.readNumber();
-                    return .{ .Type = .INT, .Literal = number };
+                    return self.newToken(.INTEGER, number);
                 } else {
-                    return .{ .Type = .ILLEGAL, .Literal = "" };
+                    return self.newToken(.ILLEGAL, "");
                 }
             },
         };
@@ -108,8 +109,8 @@ pub const Lexer = struct {
     }
 
     // utility function not used
-    pub fn newToken(tokenType: token.TokenType, ch: u8) token.Token {
-        .{ .Type = tokenType, .Literal = @as([]const u8, ch) };
+    pub fn newToken(self: *Lexer, tokenType: token.TokenType, literal: []const u8) token.Token {
+        return .{ .type = tokenType, .literal = literal, .line = self.line };
     }
 };
 

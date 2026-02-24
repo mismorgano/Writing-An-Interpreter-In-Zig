@@ -14,22 +14,20 @@ pub fn start(allocator: std.mem.Allocator, in: *std.Io.Reader, out: *std.Io.Writ
         try out.flush();
 
         // read line
-        if (in.streamDelimiter(&allocating_writer.writer, '\n')) |size| {
-            if (size == 0) {
-                break; // exit loop/exit app if there's not user input.
-            }
+        if (in.streamDelimiter(&allocating_writer.writer, '\n')) |_| {
+
             // getting line
             const line = allocating_writer.written();
             var lex = lexer.Lexer.init(line);
             var nextToken = lex.nextToken();
 
             //
-            nextLine: switch (nextToken.Type) {
+            nextLine: switch (nextToken.type) {
                 .EOF => {},
                 else => {
-                    try out.print("{{Type: {s}, Literal: {s} }}\n", .{ @tagName(nextToken.Type), nextToken.Literal });
+                    try out.print("{{Type: {s}, Literal: {s} }}\n", .{ @tagName(nextToken.type), nextToken.literal });
                     nextToken = lex.nextToken();
-                    continue :nextLine nextToken.Type;
+                    continue :nextLine nextToken.type;
                 },
             }
 

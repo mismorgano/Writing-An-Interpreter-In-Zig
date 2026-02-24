@@ -1,12 +1,14 @@
 const std = @import("std");
 
-// token types
+/// Based on the programming syntax design, recognized lexemes.
 pub const TokenType = enum {
     ILLEGAL,
     EOF,
     // Identifiers + literals
-    IDENT,
-    INT,
+    IDENTIFIER,
+    INTEGER, // and decimal is left
+    STRING,
+
     // Operators
     ASSIGN, // =
     PLUS, // +
@@ -15,19 +17,20 @@ pub const TokenType = enum {
     ASTERISK, // *
     SLASH, // /
 
-    LT, // <
-    GT, // >
+    LESS, // <
+    GREATER, // >
 
-    EQ, // ==
-    NOT_EQ, // !=
+    EQUAL, // ==
+    NOT_EQUAL, // !=
     // Delimiters
     COMMA, // ,
     SEMICOLON, // ;
+    DOT, // . for classes
 
-    LPAREN, // (
-    RPAREN, // )
-    LBRACE, // {
-    RBRACE, // }
+    LEFT_PAREN, // (
+    RIGHT_PAREN, // )
+    LEFT_BRACE, // {
+    RIGHT_BRACE, // }
     // keywords
     FUNCTION, // function
     LET, // let
@@ -36,11 +39,21 @@ pub const TokenType = enum {
     IF, // if
     ELSE, // else
     RETURN, // return
+    AND, // and
+    OR, // or
+    CLASS, // class
+    SUPER, // super
+    THIS, // this
+    FOR, // for
+    WHILE, // while
+    NIL, // nil
 };
 
+/// Includes information about 'where' an error could occur.
 pub const Token = struct {
-    Type: TokenType,
-    Literal: []const u8,
+    type: TokenType,
+    literal: []const u8,
+    line: u64,
 };
 
 const keywords = std.StaticStringMap(TokenType).initComptime(.{
@@ -51,8 +64,16 @@ const keywords = std.StaticStringMap(TokenType).initComptime(.{
     .{ "if", .IF },
     .{ "else", .ELSE },
     .{ "return", .RETURN },
+    .{ "and", .AND },
+    .{ "or", .OR },
+    .{ "class", .CLASS },
+    .{ "super", .SUPER },
+    .{ "this", .THIS },
+    .{ "for", .FOR },
+    .{ "while", .WHILE },
+    .{ "nil", .NIL },
 });
 
 pub fn lookupIdent(ident: []const u8) TokenType {
-    return keywords.get(ident) orelse .IDENT;
+    return keywords.get(ident) orelse .IDENTIFIER;
 }
