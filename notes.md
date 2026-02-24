@@ -19,6 +19,77 @@ Right now I just finished the first chapter of [Writing An Interpreter In Go][WA
 I was stuck then I found (again) this awesome resource [Crafting Interpreters](https://craftinginterpreters.com/) which contains a little more about theory and has some historic and design notes.
 So now I'm also reading it, I'll plasm some of the ideas there and I'll try to combine both of the books, *a ver qué sale*.
 
+## Design decisions
+
+[Crafting Interpreters][CI] writes about the following concepts/specification about its `Lex` programming language, it's broader 
+than the one given by [Writing An Interpreter In Go][WAIG]. Neither of them talks about error handling, (it''l be interesting to dive  a little about it).
+This includes about making the language static typed or dynamic typed, strong or weak typed, memory management, data types and their operations, what constitutes an expression?, what a statements?, are all statements expression? variables, control flow, functions, includes closures or not?, should be object oriented? in which way?
+should follow a functional paradigm? What about a standard library?
+
+Here there are the list of features for the `monkey` language implemented by [Writing An Interpreter In Go][WAIG]
+- `C`-like syntax
+- variable bindings
+- integers and booleans
+- arithmetic expressions
+- built-in functions
+- first-class and higher-order functions
+- closures
+- a string data structure/type
+- an array data structure
+- a hash data structure
+
+And here is the list of features for the `lox`language implemented by [Crafting Interpreters][CI]
+- `C`-like syntax
+- dynamic typing
+- automatic memory management trough a garbage collector
+- built-in data types 
+  - booleans
+  - numbers (all double-precision floating point) 
+  - string
+  - nil (like null)
+- expressions (produce a value), various kind
+  - arithmetic
+  - comparison and equality
+  - logical operators
+  - precedence and grouping
+- statements (produce an effect)
+  - blocks (to wrap a series of statements)
+- variables
+- control flow
+- functions 
+  - closures
+- classes
+  - instantiation and initialization
+  - inheritance
+- standard library
+  - just the build-int `print` statement
+
+We can see the difference between each one, although one it's more descriptive. 
+In any case it would be fun to try to mashup both of them.
+
+
+## Concepts
+
+<dl>
+  <dt>Self-hosting</dt>
+  <dd>Implement a a compiler in the the same language it compiles.</dd>
+</dl>
+But, how does a first compiler for a language appear? It cannot use *self-hosting* yet but it can use:
+
+<dl>
+  <dt>Bootstrapping</dt>
+  <dd>Implement a first version of a compiler in another language and use that version to make a compiler for the language and iterate over that one.</dd>
+</dl>
+
+
+## Historic notes
+
+
+## Tools
+
+There exists **compilers-compilers**, like [Lex](https://silcnitc.github.io/lex.html) that takes regular expression and outputs a `C` implementation corresponding the finite state machine (finite automata) that when compiled produces a *lexical analyzer*, or a *parse generator* like [Yacc](https://en.wikipedia.org/wiki/Yacc) both included in your distro, you can use it from your terminal!
+Theres's a Yacc replacement called [Bison](https://en.wikipedia.org/wiki/GNU_bison).
+
 
 
 
