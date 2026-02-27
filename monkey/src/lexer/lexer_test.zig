@@ -26,6 +26,9 @@ test "next token" {
         \\}
         \\10 == 10;
         \\10 != 9;
+        \\10<=11;
+        \\11>=10;
+        \\// this is a line comment
     ;
 
     const ExpectedToken = struct { expected_type: token.TokenType, expected_literal: []const u8 };
@@ -104,6 +107,15 @@ test "next token" {
         .{ .expected_type = .NOT_EQUAL, .expected_literal = "!=" },
         .{ .expected_type = .INTEGER, .expected_literal = "9" },
         .{ .expected_type = .SEMICOLON, .expected_literal = ";" },
+        .{ .expected_type = .INTEGER, .expected_literal = "10" },
+        .{ .expected_type = .LESS_EQUAL, .expected_literal = "<=" },
+        .{ .expected_type = .INTEGER, .expected_literal = "11" },
+        .{ .expected_type = .SEMICOLON, .expected_literal = ";" },
+        .{ .expected_type = .INTEGER, .expected_literal = "11" },
+        .{ .expected_type = .GREATER_EQUAL, .expected_literal = ">=" },
+        .{ .expected_type = .INTEGER, .expected_literal = "10" },
+        .{ .expected_type = .SEMICOLON, .expected_literal = ";" },
+        .{ .expected_type = .LINE_COMMENT, .expected_literal = " this is a line comment" },
         .{ .expected_type = .EOF, .expected_literal = "" },
     };
 

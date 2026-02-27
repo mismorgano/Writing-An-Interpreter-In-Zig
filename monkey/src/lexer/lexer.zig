@@ -59,45 +59,44 @@ pub const Lexer = struct {
         self.skipWhitespace();
 
         const tok: token.Token = sw: switch (self.ch) { // not self.peekChar
-            '=' => {
-                if (self.peekChar() == '=') {
-                    self.advance();
-                    break :sw self.addToken(.EQUAL);
-                } else {
-                    break :sw self.addToken(.ASSIGN);
-                }
-            },
             '+' => self.addToken(.PLUS),
             '-' => self.addToken(.MINUS),
-            '!' => {
-                if (self.peekChar() == '=') {
-                    self.advance();
-                    break :sw self.addToken(.NOT_EQUAL);
-                } else {
-                    break :sw self.addToken(.BANG);
-                }
-            },
             '*' => self.addToken(.ASTERISK),
-            '/' => self.addToken(.SLASH),
-            '<' => self.addToken(.LESS),
-            '>' => self.addToken(.GREATER),
             ';' => self.addToken(.SEMICOLON),
             ',' => self.addToken(.COMMA),
             '(' => self.addToken(.LEFT_PAREN),
             ')' => self.addToken(.RIGHT_PAREN),
             '{' => self.addToken(.LEFT_BRACE),
             '}' => self.addToken(.RIGHT_BRACE),
-            0 => .{ .type = .EOF, .literal = "", .line = self.line }, // because it points to null-terminated byte arrays.
-            else => default: {
+
+            0 => .{ .type = .EOF, .literal = "", .line = self.line }, // because it points to null-terminated byte arrays. // end of input.
+
+            '=' => self.addToken(if (self.match('=')) .EQUAL else .ASSIGN),
+            '!' => self.addToken(if (self.match('=')) .NOT_EQUAL else .BANG),
+            '<' => self.addToken(if (self.match('=')) .LESS_EQUAL else .LESS),
+            '>' => self.addToken(if (self.match('=')) .GREATER_EQUAL else .GREATER),
+
+            '/' => {
+                if (self.match('/')) {
+                    self.readChar();
+                    while (self.peekChar() != '\n' and !self.isAtEnd()) {
+                        self.advance();
+                    }
+                    break :sw self.addToken(.LINE_COMMENT);
+                } else {
+                    break :sw self.addToken(.SLASH);
+                }
+            },
+            else => {
                 if (isLetter(self.ch)) {
                     const identifier = self.readIdentifier();
                     const t = token.lookupIdent(identifier);
-                    break :default self.addToken(t);
+                    break :sw self.addToken(t);
                 } else if (isDigit(self.ch)) {
                     _ = self.readNumber();
-                    break :default self.addToken(.INTEGER);
+                    break :sw self.addToken(.INTEGER);
                 } else {
-                    break :default self.addToken(.ILLEGAL);
+                    break :sw self.addToken(.ILLEGAL);
                 }
             },
         };
@@ -105,6 +104,15 @@ pub const Lexer = struct {
         self.readChar(); // we need to advance our lexer
 
         return tok;
+    }
+
+    // Determines if the next character is of our interest
+    fn match(self: *Lexer, ch: u8) bool {
+        if (self.peekChar() == ch) {
+            self.advance();
+            return true;
+        }
+        return false;
     }
 
     pub fn readIdentifier(self: *Lexer) []const u8 {

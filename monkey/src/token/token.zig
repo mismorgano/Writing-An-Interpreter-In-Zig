@@ -4,6 +4,8 @@ const std = @import("std");
 pub const TokenType = enum {
     ILLEGAL,
     EOF,
+    LINE_COMMENT,
+
     // Identifiers + literals
     IDENTIFIER,
     INTEGER, // and decimal is left
@@ -18,7 +20,9 @@ pub const TokenType = enum {
     SLASH, // /
 
     LESS, // <
-    GREATER, // >
+    LESS_EQUAL, // <=
+    GREATER, // >=
+    GREATER_EQUAL, // >=
 
     EQUAL, // ==
     NOT_EQUAL, // !=
