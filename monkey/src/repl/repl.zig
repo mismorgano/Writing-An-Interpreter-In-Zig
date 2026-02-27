@@ -25,7 +25,7 @@ pub fn start(allocator: std.mem.Allocator, in: *std.Io.Reader, out: *std.Io.Writ
             nextLine: switch (nextToken.type) {
                 .EOF => {},
                 else => {
-                    try out.print("{{Type: {s}, Literal: {s} }}\n", .{ @tagName(nextToken.type), nextToken.literal });
+                    try out.print("{{Type: {s}, Literal: '{s}' }}\n", .{ @tagName(nextToken.type), nextToken.literal });
                     nextToken = lex.nextToken();
                     continue :nextLine nextToken.type;
                 },

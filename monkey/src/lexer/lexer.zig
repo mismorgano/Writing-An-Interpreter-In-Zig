@@ -1,11 +1,13 @@
 const token = @import("token");
 
+/// Structure for scanning and tokenize input.
+/// It receives only the input as a []const u8
 pub const Lexer = struct {
     input: []const u8,
-    position: usize = 0, // current position in input (points to current char)
-    readPosition: usize = 0, // current reading position in input (after current char)
+    position: usize = 0, // current position in input (points to current char) and start of token
+    readPosition: usize = 0, // current reading position in input (after current char) 'possibly end' of token
     ch: u8 = 0, // current char under examination
-    line: u64 = 1,
+    line: u64 = 1, // tracks what source line
 
     pub fn init(input: []const u8) Lexer {
         var lexer = Lexer{ .input = input };
@@ -13,7 +15,20 @@ pub const Lexer = struct {
         return lexer;
     }
 
-    pub fn readChar(self: *Lexer) void {
+    fn isAtEnd(self: *Lexer) bool {
+        return self.readPosition >= self.input.len;
+    }
+
+    /// Only moves our readPosition (current end) by one
+    fn advance(self: *Lexer) void {
+        if (!self.isAtEnd()) {
+            self.ch = self.input[self.readPosition];
+            self.readPosition += 1;
+        }
+    }
+
+    /// Advances the start position. 'Consume' the characters until readPosition(current end)
+    fn readChar(self: *Lexer) void {
         if (self.readPosition >= self.input.len) {
             self.ch = 0;
         } else {
@@ -23,6 +38,7 @@ pub const Lexer = struct {
         self.readPosition += 1;
     }
 
+    /// See one character ahead
     pub fn peekChar(self: *Lexer) u8 {
         if (self.readPosition >= self.input.len) {
             return 0;
@@ -31,76 +47,81 @@ pub const Lexer = struct {
         }
     }
 
+    /// Advances readPosition until end of number
     pub fn readNumber(self: *Lexer) []const u8 {
-        const position = self.position;
-        while (isDigit(self.ch)) {
-            self.readChar();
+        while (isDigit(self.peekChar())) {
+            self.advance();
         }
-        return self.input[position..self.position];
+        return self.input[self.position..self.position];
     }
 
     pub fn nextToken(self: *Lexer) token.Token {
         self.skipWhitespace();
 
-        const tok: token.Token = sw: switch (self.ch) {
+        const tok: token.Token = sw: switch (self.ch) { // not self.peekChar
             '=' => {
                 if (self.peekChar() == '=') {
-                    self.readChar();
-                    break :sw self.newToken(.EQUAL, "==");
+                    self.advance();
+                    break :sw self.addToken(.EQUAL);
                 } else {
-                    break :sw self.newToken(.ASSIGN, "=");
+                    break :sw self.addToken(.ASSIGN);
                 }
             },
-            '+' => self.newToken(.PLUS, "+"),
-            '-' => self.newToken(.MINUS, "-"),
+            '+' => self.addToken(.PLUS),
+            '-' => self.addToken(.MINUS),
             '!' => {
                 if (self.peekChar() == '=') {
-                    self.readChar();
-                    break :sw self.newToken(.NOT_EQUAL, "!=");
+                    self.advance();
+                    break :sw self.addToken(.NOT_EQUAL);
                 } else {
-                    break :sw self.newToken(.BANG, "!");
+                    break :sw self.addToken(.BANG);
                 }
             },
-            '*' => self.newToken(.ASTERISK, "*"),
-            '/' => self.newToken(.SLASH, "/"),
-            '<' => self.newToken(.LESS, "<"),
-            '>' => self.newToken(.GREATER, ">"),
-            ';' => self.newToken(.SEMICOLON, ";"),
-            ',' => self.newToken(.COMMA, ","),
-            '(' => self.newToken(.LEFT_PAREN, "("),
-            ')' => self.newToken(.RIGHT_PAREN, ")"),
-            '{' => self.newToken(.LEFT_PAREN, "{"),
-            '}' => self.newToken(.RIGHT_BRACE, "}"),
-            0 => self.newToken(.EOF, ""), // because it points to null-terminated byte arrays.
-            else => {
+            '*' => self.addToken(.ASTERISK),
+            '/' => self.addToken(.SLASH),
+            '<' => self.addToken(.LESS),
+            '>' => self.addToken(.GREATER),
+            ';' => self.addToken(.SEMICOLON),
+            ',' => self.addToken(.COMMA),
+            '(' => self.addToken(.LEFT_PAREN),
+            ')' => self.addToken(.RIGHT_PAREN),
+            '{' => self.addToken(.LEFT_BRACE),
+            '}' => self.addToken(.RIGHT_BRACE),
+            0 => .{ .type = .EOF, .literal = "", .line = self.line }, // because it points to null-terminated byte arrays.
+            else => default: {
                 if (isLetter(self.ch)) {
                     const identifier = self.readIdentifier();
                     const t = token.lookupIdent(identifier);
-                    return self.newToken(t, identifier);
+                    break :default self.addToken(t);
                 } else if (isDigit(self.ch)) {
-                    const number = self.readNumber();
-                    return self.newToken(.INTEGER, number);
+                    _ = self.readNumber();
+                    break :default self.addToken(.INTEGER);
                 } else {
-                    return self.newToken(.ILLEGAL, "");
+                    break :default self.addToken(.ILLEGAL);
                 }
             },
         };
 
-        self.readChar();
+        self.readChar(); // we need to advance our lexer
+
         return tok;
     }
 
     pub fn readIdentifier(self: *Lexer) []const u8 {
-        const position = self.position;
-        while (isLetter(self.ch)) {
-            self.readChar();
+        while (isLetter(self.peekChar())) {
+            self.advance();
         }
-        return self.input[position..self.position];
+        return self.input[self.position..self.readPosition];
     }
 
     pub fn skipWhitespace(self: *Lexer) void {
         skip: switch (self.ch) {
-            ' ', '\t', '\n', '\r' => {
+            ' ', '\t', '\r' => {
+                self.readChar();
+                continue :skip self.ch;
+            },
+            '\n' => {
+                self.line += 1;
                 self.readChar();
                 continue :skip self.ch;
             },
@@ -108,8 +129,12 @@ pub const Lexer = struct {
         }
     }
 
+    fn addToken(self: *Lexer, tokenType: token.TokenType) token.Token {
+        const literal = self.input[self.position..self.readPosition];
+        return .{ .type = tokenType, .literal = literal, .line = self.line };
+    }
     // utility function not used
-    pub fn newToken(self: *Lexer, tokenType: token.TokenType, literal: []const u8) token.Token {
+    fn newToken(self: *Lexer, tokenType: token.TokenType, literal: []const u8) token.Token {
         return .{ .type = tokenType, .literal = literal, .line = self.line };
     }
 };
