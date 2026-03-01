@@ -47,12 +47,27 @@ pub const Lexer = struct {
         }
     }
 
+    fn peekNextTwo(self: *Lexer) u8 {
+        return if (self.readPosition + 1 >= self.input.len)
+            0
+        else
+            self.input[self.readPosition + 1];
+    }
+
     /// Advances readPosition until end of number
-    pub fn readNumber(self: *Lexer) []const u8 {
+    pub fn readNumber(self: *Lexer) void {
         while (isDigit(self.peekChar())) {
             self.advance();
         }
-        return self.input[self.position..self.position];
+
+        // look for a fractional part
+
+        if (self.peekChar() == '.' and isDigit(self.peekNextTwo())) {
+            self.advance();
+            while (isDigit(self.peekChar())) {
+                self.advance();
+            }
+        }
     }
 
     pub fn nextToken(self: *Lexer) token.Token {
@@ -64,6 +79,7 @@ pub const Lexer = struct {
             '*' => self.addToken(.ASTERISK),
             ';' => self.addToken(.SEMICOLON),
             ',' => self.addToken(.COMMA),
+            '.' => self.addToken(.DOT),
             '(' => self.addToken(.LEFT_PAREN),
             ')' => self.addToken(.RIGHT_PAREN),
             '{' => self.addToken(.LEFT_BRACE),
@@ -87,13 +103,16 @@ pub const Lexer = struct {
                     break :sw self.addToken(.SLASH);
                 }
             },
+
+            '"' => self.addToken(if (self.readString()) .STRING else .ILLEGAL),
+
             else => {
                 if (isLetter(self.ch)) {
                     const identifier = self.readIdentifier();
                     const t = token.lookupIdent(identifier);
                     break :sw self.addToken(t);
                 } else if (isDigit(self.ch)) {
-                    _ = self.readNumber();
+                    self.readNumber();
                     break :sw self.addToken(.INTEGER);
                 } else {
                     break :sw self.addToken(.ILLEGAL);
@@ -115,8 +134,22 @@ pub const Lexer = struct {
         return false;
     }
 
+    fn readString(self: *Lexer) bool {
+        while (self.peekChar() != '"' and !self.isAtEnd()) {
+            if (self.peekChar() == '\n') self.line += 1;
+            self.advance();
+        }
+        // unterminated string
+        if (self.isAtEnd()) {
+            return false;
+        }
+        // the closing "
+        self.advance();
+        return true;
+    }
+
     pub fn readIdentifier(self: *Lexer) []const u8 {
-        while (isLetter(self.peekChar())) {
+        while (isAlphanumeric(self.peekChar())) {
             self.advance();
         }
         return self.input[self.position..self.readPosition];
@@ -153,4 +186,8 @@ fn isDigit(ch: u8) bool {
 
 fn isLetter(ch: u8) bool {
     return 'a' <= ch and ch <= 'z' or 'A' <= ch and ch <= 'Z' or ch == '_';
+}
+
+fn isAlphanumeric(ch: u8) bool {
+    return isLetter(ch) or isDigit(ch);
 }
