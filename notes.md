@@ -67,6 +67,82 @@ And here is the list of features for the `lox`language implemented by [Crafting 
 We can see the difference between each one, although one it's more descriptive. 
 In any case it would be fun to try to mashup both of them.
 
+### Our programming language
+
+First we had to define a name for it. Due to it's a mashup from `monkey` and `lox` it could be called `monlox`, `moxy`, `loxy`, `mox`.
+Just for now let's stick with `mox` and because it's based on the other two languages it should had at least the (roughly) the same 
+features. So at least it should implement:
+
+- `C`-like syntax
+- dynamic typing
+- automatic memory management trough a garbage collector
+- built-in data types 
+  - booleans
+  - numbers (maybe specialized types int32, int64, double32, double64, support arbitrary precision)
+  - strings 
+  - nil (like null)
+  - an array data structure
+  - a hash data structure
+- expressions (produce a value), various kind
+  - arithmetic
+  - comparison and equality
+  - logical operators
+  - precedence and grouping
+- statements (produce an effect)
+  - blocks (to wrap a series of statements)
+- variables
+- control flow
+- functions 
+  - closures
+- classes
+  - instantiation and initialization
+  - inheritance
+- standard library
+  - built-in functions
+
+
+I would love to extend the capabilities given by `monkey` and `lox`. I have things in mind I want to have a module system, so we can organize 
+the code, the std could be implemented using this system. I don't know if that could extend to a package manager (how build the packages?),
+I would love to use it for graphics development be able to support math operations on arrays-like types, 
+system programming (It would be sick to use to implement a tiny os), so it would be good to have interoperability with `C`. 
+Implement some functional programming features?operators? like `|>`the pipe operator, be able to extend types.
+There are others considerations like how to use comments, how to document the code, which other utilities should the compiler had `fmt`?
+A way to handle error and null/nil safety, specific syntax?
+Of course, silly me would simply mimic the syntax of those modern programming languages, the more beautiful/appealing will be the one I'll
+want to implement, just like I'm dreaming. Due to my [tokenizing dilemma](#tokenizing-dilemma)
+maybe I should not be so greedy and just try to implement some features that required concepts/tokens I already had implemented 
+(single, double and keywords)
+
+Some concepts I don't know how to implement (yet) but at least I could tokenize
+
+- pattern matching (switch, match) 
+- error checking (error)
+- null checking/safety? (optional values)
+- modules (module)
+- `C` interoperability (extern) 
+- pipe operator `|>`
+- ...
+
+Based on that  I should first define a list of possible keywords:
+
+```mox
+let, fn, true, false, if, else, return, and, or, class, super, this, for, while, nil
+```
+
+## Chapter one: SCANNING/LEXING
+
+So basically to interpreter our language we first had to be able to recognize the parts that make our languages, expressions and statements
+and before that we had to make sense of the "words" and "punctuation" that make up our language grammar. That's what we called `tokens`.
+
+So we had to define a little about our grammar and therefore what would be consider a token. That's part of our design decisions.
+Apparently, we can define a `EBNF`syntax file for our language.
+
+<p id="tokenizing-dilemma">
+So If I want to extend the implemented capabilities I had to think about the syntax and when thinking about it, how this new syntax should be 
+tokenized was my first thought, for example, in `zig` there are the built-in functions '@build-in' should they be tokenized like '@' and 'IDENTIFIER'
+or should be tokenized like '@build-in' if 'build-in' is effectively a build-in function and 'ILLEGAL' in other case? 
+</p>
+
 
 ## Concepts
 
