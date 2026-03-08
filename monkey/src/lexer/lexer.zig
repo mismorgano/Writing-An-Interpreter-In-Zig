@@ -1,4 +1,5 @@
 const token = @import("token");
+const ErrorReporter = @import("monkey").derr.ErrorReporter;
 
 /// Structure for scanning and tokenize input.
 /// It receives only the input as a []const u8
@@ -8,9 +9,10 @@ pub const Lexer = struct {
     readPosition: usize = 0, // current reading position in input (after current char) 'possibly end' of token
     ch: u8 = 0, // current char under examination
     line: u64 = 1, // tracks what source line
+    error_rep: ErrorReporter,
 
-    pub fn init(input: []const u8) Lexer {
-        var lexer = Lexer{ .input = input };
+    pub fn init(input: []const u8, error_reporter: ErrorReporter) Lexer {
+        var lexer = Lexer{ .input = input, .error_rep = error_reporter };
         lexer.readChar();
         return lexer;
     }
@@ -115,6 +117,7 @@ pub const Lexer = struct {
                     self.readNumber();
                     break :sw self.addToken(.INTEGER);
                 } else {
+                    self.error_rep.err(self.line, "Unexpected Character") catch {}; // The only errors we can catch are about io.writers, which we will ignore
                     break :sw self.addToken(.ILLEGAL);
                 }
             },
@@ -141,6 +144,7 @@ pub const Lexer = struct {
         }
         // unterminated string
         if (self.isAtEnd()) {
+            self.error_rep.err(self.line, "Unterminated string") catch {};
             return false;
         }
         // the closing "

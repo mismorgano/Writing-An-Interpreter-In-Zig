@@ -50,10 +50,8 @@ pub fn build(b: *std.Build) void {
         .root_source_file = b.path("src/lexer/lexer.zig"),
         .target = target,
         .imports = &.{
-            .{
-                .name = "token",
-                .module = token_mod,
-            },
+            .{ .name = "monkey", .module = mod },
+            .{ .name = "token", .module = token_mod },
         },
     });
 
@@ -154,6 +152,7 @@ pub fn build(b: *std.Build) void {
             .root_source_file = b.path("src/lexer/lexer_test.zig"),
             .target = target,
             .imports = &.{
+                .{ .name = "monkey", .module = mod },
                 .{ .name = "token", .module = token_mod },
             },
         }),

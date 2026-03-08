@@ -5,8 +5,24 @@ const token = @import("token");
 const lexer = @import("lexer.zig");
 const std = @import("std");
 const expect = @import("std").testing.expect;
+const ErrorReporter = @import("monkey").derr.ErrorReporter;
 
 test "next token" {
+
+    // allocator
+    var gpa: std.heap.DebugAllocator(.{}) = .init;
+    const allocator = gpa.allocator();
+
+    // stdin
+    var stdin_buffer: [1024]u8 = undefined;
+    var stdin_reader = std.fs.File.stdin().reader(&stdin_buffer);
+    const stdin = &stdin_reader.interface;
+
+    // stdout
+    var stdout_buffer: [1024]u8 = undefined;
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    const stdout = &stdout_writer.interface;
+
     const input =
         \\let five = 5;
         \\let ten = 10;
@@ -145,7 +161,8 @@ test "next token" {
         .{ .expected_type = .EOF, .expected_literal = "", .expected_line = 27 },
     };
 
-    var l = lexer.Lexer.init(input);
+    const error_reporter = ErrorReporter.init(allocator, stdin, stdout);
+    var l = lexer.Lexer.init(input, error_reporter);
     // std.debug.print("{s}", .{input});
     for (tests) |tt| {
         const tok = l.nextToken();

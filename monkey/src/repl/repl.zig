@@ -1,6 +1,7 @@
 const std = @import("std");
 const lexer = @import("lexer");
 const token = @import("token");
+const ErrorReporter = @import("monkey").derr.ErrorReporter;
 
 const PROMPT = ">>";
 
@@ -8,6 +9,7 @@ pub fn start(allocator: std.mem.Allocator, in: *std.Io.Reader, out: *std.Io.Writ
     var allocating_writer = std.Io.Writer.Allocating.init(allocator);
     defer allocating_writer.deinit();
 
+    const errorReporter = ErrorReporter.init(allocator, in, out);
     // "event loop"
     while (true) {
         try out.print("{s}", .{PROMPT});
@@ -18,7 +20,7 @@ pub fn start(allocator: std.mem.Allocator, in: *std.Io.Reader, out: *std.Io.Writ
 
             // getting line
             const line = allocating_writer.written();
-            var lex = lexer.Lexer.init(line);
+            var lex = lexer.Lexer.init(line, errorReporter);
             var nextToken = lex.nextToken();
 
             //
