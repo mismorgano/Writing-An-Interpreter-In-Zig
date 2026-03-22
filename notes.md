@@ -128,6 +128,60 @@ Based on that  I should first define a list of possible keywords:
 ```mox
 let, fn, true, false, if, else, return, and, or, class, super, this, for, while, nil
 ```
+Which are the ones defined in CI.
+
+Based on what I would love to implement: focus on graphics development like `lobster`, broadcasting like `julia` or `numpy`, system programming like `zig`and 
+functional programming like `F#`, also I was viewing the `python` data model and their use of the 'dunder methods'. 
+I was checking their 'syntax' and the way they specify their grammar.
+So I'll try to mimic their grammar through the following resources [`lobster` language reference][lobster], [`zig` peg grammar][zig], [`nim` language manual][nim], [`F#` language syntax examples][F#] and the [parsing expressions grammars paper][peg].
+
+So as [CI] we'll walk trough some concepts of `mox` (file.mx).
+
+### Hello `mox` 
+
+First a taste of `mox`
+```mox
+# a line comment
+@print("Hello, World");
+```
+The syntax `@builtin` will be used for build it functions.
+
+
+### A High-Level language
+
+As a result (I hope) based on the languages from I drew inspiration.
+
+#### Dynamic typing
+ 
+First note that CI and WAIG implement dynamic typed languages and because of the focus on graphics and system development 
+it will be interesting trying to implement a static typed language but using type inference to give a taste of dynamic typed. 
+Before that I should keep with [CI] and [WAIG], so for now `mox` will be dynamic typed. Check [julia types](https://docs.julialang.org/en/v1/manual/types/)
+
+Where should I look for type systems, static typed and inference typed?
+
+#### Automatic memory management
+
+We'll implement a garbage collector so we'll be in charge of using allocators and not the user.
+
+### Data types
+
+- **Booleans**: every condition should evaluate to one of the values `true` or `false`. What's the difference between built in these types or use an enum?
+```mox
+true;
+false;
+```
+- **Numbers**: the're two types of numbers: Integer and Double (double precision floats). As like `julia` we allow computations with arbitrary-precision integers and floating point numbers trough [] (trough builtin functions?)
+```mox
+12.1
+
+```
+- **Strings**: as in [CI] 
+
+### peg file.
+
+But based on [peg] I could start a simple `peg` file.
+
+
 
 ## Chapter one: SCANNING/LEXING
 
@@ -141,6 +195,8 @@ Apparently, we can define a `EBNF`syntax file for our language.
 So If I want to extend the implemented capabilities I had to think about the syntax and when thinking about it, how this new syntax should be 
 tokenized was my first thought, for example, in `zig` there are the built-in functions '@build-in' should they be tokenized like '@' and 'IDENTIFIER'
 or should be tokenized like '@build-in' if 'build-in' is effectively a build-in function and 'ILLEGAL' in other case? 
+
+Seeing `zig` code we can see there's a specific 'BUILTINIDENTIFIER' which is tokenized by a simply 'builtin' token.
 </p>
 
 
@@ -171,3 +227,9 @@ Theres's a Yacc replacement called [Bison](https://en.wikipedia.org/wiki/GNU_bis
 
 [WAIG]:  https://interpreterbook.com/
 [CI]: https://craftinginterpreters.com/
+
+[lobster]: https://aardappel.github.io/lobster/language_reference.html
+[zig]: https://ziglang.org/documentation/master/#toc-Grammar
+[peg]: https://bford.info/pub/lang/peg.pdf
+[F#]: https://fsharp.org/
+[nim]: https://nim-lang.org/docs/manual.html
