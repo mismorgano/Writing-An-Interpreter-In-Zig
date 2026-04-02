@@ -18,6 +18,16 @@ heard of [Rust](https://rust-lang.org/) and some time ago I tried to learn it bu
 Right now I just finished the first chapter of [Writing An Interpreter In Go][WAIG] and now I'm in the chapter two about **parsing** and the implementation uses interfaces I read about it, watched some videos and implement one for the `Node` interface. 
 I was stuck then I found (again) this awesome resource [Crafting Interpreters](https://craftinginterpreters.com/) which contains a little more about theory and has some historic and design notes.
 So now I'm also reading it, I'll plasm some of the ideas there and I'll try to combine both of the books, *a ver qué sale*.
+Now, I found another valuable resource with the same spirit that the former ones: [Implementing Programming Languages][IPL], which "aims to make programming language implementation as easy as possible.". So far so good, it's much more detailed that the former ones and it's part of a course which means that I could check out their assignments and try to adopt if I want to impart a course about this.
+Now that I had read more about it I can said that it really is more practical because it uses predefined tools although it explains its use.
+For example, it shows how useful a grammar can be by showing us a tool called `BNFC` which takes a grammar specified in their own syntax based on `BNF
+which rules tak the following form
+
+`LABEL . VALUE_CATEGORY ::= PRODUCTION ;`
+
+Then it uses the BNFC tool to make a parser for that grammar. Then it shows the grammar for a language subset of `C` although I will be based on the `peg` file of `zig`.
+Now, I'm also reading [Programming Language Design and Implementation](https://link.springer.com/book/10.1007/978-3-031-93299-1) and (finally?) [the dragon book](https://dpvipracollege.ac.in/wp-content/uploads/2023/01/Alfred-V.-Aho-Monica-S.-Lam-Ravi-Sethi-Jeffrey-D.-Ullman-Compilers-Principles-Techniques-and-Tools-Pearson_Addison-Wesley-2007.pdf). Anyways now I should focus on the syntax to pass to the parser phase.
+
 
 ## Design decisions
 
@@ -227,6 +237,7 @@ Theres's a Yacc replacement called [Bison](https://en.wikipedia.org/wiki/GNU_bis
 
 [WAIG]:  https://interpreterbook.com/
 [CI]: https://craftinginterpreters.com/
+[IPL]: https://www.cse.chalmers.se/edu/year/2012/course/DAT150/lectures/plt-book.pdf
 
 [lobster]: https://aardappel.github.io/lobster/language_reference.html
 [zig]: https://ziglang.org/documentation/master/#toc-Grammar
