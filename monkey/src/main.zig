@@ -2,43 +2,39 @@ const std = @import("std");
 const monkey = @import("monkey");
 const repl = @import("repl/repl.zig");
 
-pub fn main() !void {
+pub fn main(init: std.process.Init) !void {
     // Prints to stderr, ignoring potential errors.
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
     try monkey.bufferedPrint();
 
     // allocator
-    var gpa: std.heap.DebugAllocator(.{}) = .init;
-    const allocator = gpa.allocator();
+    // bases in the new 'Juicy main' the gpa field of init is an allocator, just what we use before
+    // I guess based on the source code struct it's an ArenaAllocator instead of the DebugAllocator previously used.
+    const allocator = init.gpa;
+
+    // Io
+    const io = init.io;
 
     // stdin
     var stdin_buffer: [1024]u8 = undefined;
-    var stdin_reader = std.fs.File.stdin().reader(&stdin_buffer);
+    var stdin_reader = std.Io.File.stdin().reader(io, &stdin_buffer);
     const stdin = &stdin_reader.interface;
 
     // stdout
     var stdout_buffer: [1024]u8 = undefined;
-    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    var stdout_writer = std.Io.File.stdout().writer(io, &stdout_buffer);
     const stdout = &stdout_writer.interface;
 
     // the cross-platform way to access args it's an iterator
-    var argsIterator = try std.process.argsWithAllocator(allocator);
-    defer argsIterator.deinit();
-
-    _ = argsIterator.skip();
-
-    // populate an arrayList from the args iterator
-    var args: std.ArrayList([]const u8) = .empty;
-    while (argsIterator.next()) |arg| {
-        try args.append(allocator, arg);
-    }
+    const args = try init.minimal.args.toSlice(init.arena.allocator());
 
     // how the cli should be used based on number of arguments
+    // remember it has at [0] position the path of the executable
     // more than one argument we specify its usage
-    if (args.items.len > 1) {
+    if (args.len > 2) {
         try stdout.print("Usage: monkey [script]", .{});
-    } else if (args.items.len == 1) {
-        //with one argument (a file) it runs the file
+    } else if (args.len == 2) {
+        // with one argument (a file) it runs the file
     } else {
         // with not arguments it's calling the repl
         try stdout.print("Try any commands \n", .{});

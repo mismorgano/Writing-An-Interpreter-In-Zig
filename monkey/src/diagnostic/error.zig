@@ -4,8 +4,8 @@ const string = []const u8;
 
 pub const ErrorReporter = struct {
     allocator: Allocator,
-    reader: *std.io.Reader,
-    writer: *std.io.Writer,
+    reader: *std.Io.Reader,
+    writer: *std.Io.Writer,
     hadError: bool = false,
 
     pub fn init(allocator: Allocator, in: *std.Io.Reader, out: *std.Io.Writer) ErrorReporter {
